@@ -1,6 +1,7 @@
 import socket
 from _thread import *
 import sys
+from helpers import sendPos, readPos
 
 server = "192.168.0.177"
 port = 80
@@ -15,26 +16,35 @@ except socket.error as e:
 s.listen(10)
 print("Waiting for a connection")
 
-def threaded_client(conn):
-    conn.send(str.encode("connected"))
+pos = [(0, 0), (200, 200)]
+playersConnected = 0
+
+def threaded_client(conn, player):
+    conn.send(str.encode(sendPos(pos[player][0], pos[player][1])))
     reply=''
     while True:
         try:
-            data = conn.recv(2048)
-            reply = data.decode("utf-8")
+            data = readPos(conn.recv(2048).decode())
+            pos[player] = data
+
             if not data:
                 print("disconnected")
                 break
             else:
-                print(":", reply)
-            conn.sendall(str.encode(reply))
-        except:
+                if player == 0:
+                    reply = pos[1]
+                else:
+                    reply = pos[0]
+                    
+            conn.sendall(str.encode(sendPos(reply[0], reply[1])))
+        except error as e:
+            print(e)
             break
     print("lost connection")
     conn.close()
 
 while True:
     conn, addr = s.accept()
-    print("2")
     print("connected to", addr)
-    start_new_thread(threaded_client, (conn,))
+    start_new_thread(threaded_client, (conn, playersConnected))
+    playersConnected += 1

@@ -24,4 +24,7 @@ class Player():
                 self.y += self.vel
         if keys[pygame.K_UP] and self.y>=0:
                 self.y -= self.vel
-        self.rect = (self.x, self.y, self.width, self.height)
+        self.update()
+
+    def update(self):
+          self.rect = (self.x, self.y, self.width, self.height)
