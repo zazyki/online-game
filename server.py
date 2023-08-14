@@ -1,7 +1,6 @@
 import socket
 from _thread import *
 import pickle
-from helpers import sendPos, readPos
 from player import Player
 
 server = "192.168.0.177"
@@ -17,7 +16,7 @@ except socket.error as e:
 s.listen(10)
 print("Waiting for a connection")
 
-players = [Player(100 ,100 , 50, 50, (0,0,0)), Player(500 ,500 , 50, 50, (0,0,0))]
+players = [Player(100 ,100 , 50, 50, (0,0,0)), Player(500 ,500 , 50, 50, (0,0,0)),Player(200 ,200 , 50, 50, (0,0,0)), Player(300 ,300 , 50, 50, (0,0,0))]
 playersConnected = 0
 
 def threaded_client(conn, player):
@@ -33,10 +32,9 @@ def threaded_client(conn, player):
                 print("disconnected")
                 break
             else:
-                if player == 0:
-                    reply = players[1]
-                else:
-                    reply = players[0]
+                playersCopy = list(players)
+                del playersCopy[player]
+                reply = playersCopy
                     
             conn.sendall(pickle.dumps(reply))
         except error as e:
